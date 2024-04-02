@@ -1,0 +1,56 @@
+.sidebar {
+  background: black;
+  color: white;
+  position: fixed;
+  height: 100%;
+  width: 20%;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.sidebar a {
+  color: white;
+  padding: 10px 15px 10px 16px;
+  text-decoration: none;
+  font-size: 25px;
+  display: block;
+}
+
+.sidebar a:hover {
+  background: white;
+}
+
+.wrapper {
+  background: rgb(255, 255, 255);
+  margin-left: 20%;
+  padding: 4px 10px;
+  height: 97vh;
+  width: 78%;
+  color: black;
+  border: solid black;
+  position: fixed;
+}
+
+.information-box {
+  margin-top: 10px;
+  padding: 4px 10px;
+  border: 2px solid black;
+  display: flex;
+}
+
+.information-box .event-name {
+  align-items: center;
+  justify-content: center;
+}
+
+.information-box .event-date {
+  align-items: center;
+  justify-content: center;
+}
+
+.ONGOING {
+  font-size: 300px;
+}
