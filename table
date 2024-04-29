@@ -1,0 +1,27 @@
+CREATE TABLE `mydb`.`event_table` (
+  `eventID` INT NOT NULL AUTO_INCREMENT,
+  `eventName` VARCHAR(45) NOT NULL,
+  `eventDate` DATE NOT NULL,
+  PRIMARY KEY (`eventID`));
+
+CREATE TABLE `mydb`.`student_table` (
+  `idNumber` VARCHAR(11) NOT NULL,
+  `studentName` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idNumber`));
+
+CREATE TABLE `mydb`.`attendance_table` (
+  `idNumber` VARCHAR(11) NOT NULL,
+  `eventID` INT NOT NULL,
+  INDEX `idNumber_idx` (`idNumber` ASC) VISIBLE,
+  INDEX `eventID_idx` (`eventID` ASC) VISIBLE,
+  CONSTRAINT `idNumber`
+    FOREIGN KEY (`idNumber`)
+    REFERENCES `mydb`.`student_table` (`idNumber`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `eventID`
+    FOREIGN KEY (`eventID`)
+    REFERENCES `mydb`.`event_table` (`eventID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
