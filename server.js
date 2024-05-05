@@ -28,8 +28,8 @@ app.get("/", (req, res) => {
 app.post("/saveEvent", (req, res) => {
   const { eventName, eventDate } = req.body;
   console.log(req.body);
-  pool.query (
-    "INSERT INTO event_table (`eventName`, `eventDate`) VALUES (?, ?)" ,
+  pool.query(
+    "INSERT INTO event_table (`eventName`, `eventDate`) VALUES (?, ?)",
     [eventName, eventDate],
     (err, results) => {
       if (err) {
@@ -38,10 +38,23 @@ app.post("/saveEvent", (req, res) => {
       res.status(200).json(results);
       // console.log(results[0]);
     }
-  )
+  );
 });
 
-app.post("")
+app.delete("/deleteEvent/:eventId", (req, res) => {
+  const eventId = req.params.eventId;
+  pool.query(
+    "DELETE FROM event_table WHERE eventID = ?",
+    [eventId],
+    (err, results) => {
+      if (err) {
+        console.error("Error", err);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+      res.status(200).json({ message: "Event deleted successfully" });
+    }
+  );
+});
 
 app.get("/availableEvents", (req, res) => {
   pool.query(
