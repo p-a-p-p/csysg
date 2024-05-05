@@ -28,6 +28,32 @@ app.get("/", (req, res) => {
 app.post("/saveEvent", (req, res) => {
   const { eventName, eventDate } = req.body;
   console.log(req.body);
+  pool.query (
+    "INSERT INTO event_table (`eventName`, `eventDate`) VALUES (?, ?)" ,
+    [eventName, eventDate],
+    (err, results) => {
+      if (err) {
+        console.error("Error", err);
+      }
+      res.status(200).json(results);
+      // console.log(results[0]);
+    }
+  )
+});
+
+app.post("")
+
+app.get("/availableEvents", (req, res) => {
+  pool.query(
+    "SELECT eventID, eventName, eventDate FROM event_table",
+    (err, results) => {
+      if (err) {
+        console.error("Error", err);
+      }
+      res.status(200).json(results);
+      console.log(results);
+    }
+  );
 });
 
 app.get("/availableEvents", (req, res) => {

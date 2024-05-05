@@ -18,7 +18,50 @@ function addEvent(event) {
     body: JSON.stringify(data),
   });
 
-  fetch("/availableEvents")
+  // fetch("/availableEvents")
+  //   .then((response) => {
+  //     if (!response.ok) {
+  //       throw new Error("Network response was not ok");
+  //     }
+  //     return response.json();
+  //   })
+  //   .then((data) => {
+  //     console.log(data);
+  //     for (let i = 0; i < data.length; i++) {
+  //       const event = data[i];
+  //       const eventWrapper = document.querySelector(".wrapper");
+  //       // Create elements for each event
+  //       const newEventbox = document.createElement("DIV");
+  //       newEventbox.className = "information-box";
+
+  //       const newEvent = document.createElement("DIV");
+  //       newEvent.className = "event";
+
+  //       const newEventName = document.createElement("A");
+  //       newEventName.href = "./scanning.html";
+  //       newEventName.className = "event-name";
+  //       newEventName.innerText = event.eventName;
+
+  //       const newEventDate = document.createElement("P");
+  //       newEventDate.className = "event-date";
+  //       newEventDate.innerText = event.eventDate;
+
+  //       eventWrapper.appendChild(newEventbox);
+  //       newEventbox.appendChild(newEvent);
+  //       newEvent.appendChild(newEventName);
+  //       newEvent.appendChild(newEventDate);
+  //     }
+  //   })
+  //   .catch((error) => {
+  //     console.error("Error:", error);
+  //   });
+
+  location.reload();
+}
+
+function loadEvents(e) {
+
+    fetch("/availableEvents")
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -26,9 +69,10 @@ function addEvent(event) {
       return response.json();
     })
     .then((data) => {
-      console.log(data);
+      //console.log(data);
       for (let i = 0; i < data.length; i++) {
         const event = data[i];
+
         const eventWrapper = document.querySelector(".wrapper");
         // Create elements for each event
         const newEventbox = document.createElement("DIV");
@@ -38,21 +82,33 @@ function addEvent(event) {
         newEvent.className = "event";
 
         const newEventName = document.createElement("A");
-        newEventName.href = "./scanning.html";
+        newEventName.href = `./scanning.html?id=${event.eventID}`;
         newEventName.className = "event-name";
         newEventName.innerText = event.eventName;
 
         const newEventDate = document.createElement("P");
         newEventDate.className = "event-date";
-        newEventDate.innerText = event.eventDate;
-
+        var date = new Date(event.eventDate);
+        newEventDate.innerText = date.toISOString().substring(0, 10);
+        
+       
         eventWrapper.appendChild(newEventbox);
         newEventbox.appendChild(newEvent);
         newEvent.appendChild(newEventName);
         newEvent.appendChild(newEventDate);
+       
       }
     })
     .catch((error) => {
       console.error("Error:", error);
     });
+};
+
+
+function addStudentEvent(){
+      const stundentNo = document.getElementById('eventName').value
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      
+      console.log(stundentNo, urlParams.get('id'))
 }
