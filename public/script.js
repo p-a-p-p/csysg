@@ -34,6 +34,7 @@ function loadEvents(e) {
         const event = data[i];
 
         const eventWrapper = document.querySelector(".wrapper");
+
         // Create elements for each event
         const newEventbox = document.createElement("DIV");
         newEventbox.className = "information-box";
@@ -53,18 +54,18 @@ function loadEvents(e) {
 
         const newButtonDel = document.createElement("BUTTON");
         newButtonDel.className = "buttonDel";
-        newButtonDel.textContent = "DEL";
+        newButtonDel.textContent = "X";
         newButtonDel.dataset.rowId = event.eventID;
 
         eventWrapper.appendChild(newEventbox);
         newEventbox.appendChild(newEvent);
         newEvent.appendChild(newEventName);
         newEvent.appendChild(newEventDate);
-        newEvent.appendChild(newButtonDel);
+        newEventbox.appendChild(newButtonDel);
 
         //script for button
         newButtonDel.addEventListener("click", function () {
-          const eventId = this.dataset.rowId; // Get event ID from dataset
+          const eventId = this.dataset.rowId;
           fetch(`/deleteEvent/${eventId}`, {
             method: "DELETE",
           })
@@ -86,10 +87,83 @@ function loadEvents(e) {
     });
 }
 
-function addStudentEvent() {
-  const studentNo = document.getElementById("eventName").value;
+// function addStudentEvent(e) {
+//   const studentNo = document.getElementById("eventName").value;
+//   const queryString = window.location.search;
+//   const urlParams = new URLSearchParams(queryString);
+
+//   console.log(studentNo, urlParams.get("id"));
+
+//   fetch("/attendanceList", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(data),
+//   });
+// }
+
+function loadAttendanceList(e) {
+  // const studentNo = document.getElementById("eventName").value;
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
 
-  console.log(studentNo, urlParams.get("id"));
+  // console.log(studentNo, urlParams.get("id"));
+  const eventID = urlParams.get("id");
+  console.log(eventID);
+
+  fetch(`/loadAttendance/${eventID}`, {})
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      for (let i = 0; i < data.length; i++) {
+        const attendance = data[i];
+        const attendanceWrapper = document.querySelector(".attendance-box");
+
+        // Create
+        const idNumber = document.createElement("LI");
+        idNumber.className = "id-number";
+        idNumber.innerText = attendance.idNumber;
+
+        attendanceWrapper.appendChild(idNumber);
+        console.log(attendance);
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 }
+
+// const queryString = window.location.search;
+// const urlParams = new URLSearchParams(queryString);
+// const eventID = urlParams.get("id");
+// addEventListener("DOMContentLoaded", (event) => {
+//   fetch(`/loadAttendance/${eventID}`, {})
+//     .then((response) => {
+//       if (!response.ok) {
+//         throw new Error("Network response was not ok");
+//       }
+//       return response.json();
+//     })
+//     .then((data) => {
+//       for (let i = 0; i < data.length; i++) {
+//         const attendance = data[i];
+//         const attendanceWrapper = document.querySelector(".attendance-box");
+
+//         // Create
+//         const idNumber = document.createElement("LI");
+//         idNumber.className = "id-number";
+//         idNumber.innerText = attendance.idNumber;
+
+//         attendanceWrapper.appendChild(idNumber);
+//         console.log(attendance);
+//       }
+//     })
+//     .catch((error) => {
+//       console.error("Error:", error);
+//     });
+// });

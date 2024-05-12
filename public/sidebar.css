@@ -1,3 +1,11 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
 .sidebar {
   background: black;
   color: white;
@@ -21,15 +29,19 @@
 
 .sidebar a:hover {
   background: white;
-  color:black;
+  color: black;
+}
+
+input {
+  height: 27px;
 }
 
 .wrapper {
   background: rgb(255, 255, 255);
   margin-left: 20%;
-  padding: 4px 10px;
-  height: 97vh;
-  width: 78%;
+  padding: 10px 10px;
+  height: 100vh;
+  width: 80%;
   color: black;
   border: solid black;
   position: fixed;
@@ -40,6 +52,7 @@
   padding: 4px 10px;
   border: 2px solid black;
   display: flex;
+  justify-content: space-between;
 }
 
 .information-box .event-name {
@@ -52,6 +65,46 @@
   justify-content: center;
 }
 
+.information-box .buttonDel {
+  display: inline-block;
+  outline: 0;
+  cursor: pointer;
+  border: 2px solid #000;
+  border-radius: 3px;
+  color: #000;
+  background: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  padding: 12px 20px;
+  text-align: center;
+  transition-duration: 0.15s;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  :hover {
+    background: rgb(251, 193, 245);
+  }
+}
+.event {
+  width: 100%;
+}
+
+.attendance-box {
+  margin-top: 10px;
+  padding: 4px 10px;
+  border: 2px solid black;
+  height: 100vh;
+}
+
 .ONGOING {
   font-size: 300px;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+}
+
+.event-name:hover {
+  color: blue;
 }

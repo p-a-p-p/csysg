@@ -24,10 +24,8 @@ app.get("/", (req, res) => {
 });
 
 // Define a route to handle saving events
-
 app.post("/saveEvent", (req, res) => {
   const { eventName, eventDate } = req.body;
-  console.log(req.body);
   pool.query(
     "INSERT INTO event_table (`eventName`, `eventDate`) VALUES (?, ?)",
     [eventName, eventDate],
@@ -36,7 +34,6 @@ app.post("/saveEvent", (req, res) => {
         console.error("Error", err);
       }
       res.status(200).json(results);
-      // console.log(results[0]);
     }
   );
 });
@@ -69,9 +66,39 @@ app.get("/availableEvents", (req, res) => {
   );
 });
 
-app.get("/availableEvents", (req, res) => {
+// app.get("/availableEvents", (req, res) => {
+//   pool.query(
+//     "SELECT eventID, eventName, eventDate FROM event_table",
+//     (err, results) => {
+//       if (err) {
+//         console.error("Error", err);
+//       }
+//       res.status(200).json(results);
+//       console.log(results);
+//     }
+//   );
+// });
+
+app.post("/addStudent", (req, res) => {
+  const { eventName, eventDate } = req.body;
   pool.query(
-    "SELECT eventID, eventName, eventDate FROM event_table",
+    "INSERT INTO event_table (`eventName`, `eventDate`) VALUES (?, ?)",
+    [eventName, eventDate],
+    (err, results) => {
+      if (err) {
+        console.error("Error", err);
+      }
+      res.status(200).json(results);
+    }
+  );
+});
+
+app.get("/loadAttendance/:eventID", (req, res) => {
+  const eventID = req.params.eventID;
+  console.log(eventID);
+  pool.query(
+    "SELECT * FROM attendance_table INNER JOIN event_table ON attendance_table.eventID = event_table.eventID WHERE attendance_table.eventID = ?",
+    [eventID],
     (err, results) => {
       if (err) {
         console.error("Error", err);
@@ -82,7 +109,25 @@ app.get("/availableEvents", (req, res) => {
   );
 });
 
-// Route to handle user authentication
+// app.get("/loadAttendance/:eventID", (req, res) => {
+//   const eventID = req.params.eventID;
+//   console.log(eventID); // Log the extracted eventID for debugging
+
+//   pool.query(
+//     "SELECT * FROM attendance_table INNER JOIN event_table ON attendance_table.eventID = event_table.eventID WHERE eventID = ?",
+//     [eventID],
+//     (err, results) => {
+//       if (err) {
+//         console.error("Error executing SQL query:", err);
+//         res.status(500).json({ error: "Internal server error" }); // Send an error response
+//       } else {
+//         console.log("Query results:", results); // Log the query results for debugging
+//         res.status(200).json(results); // Send the query results as JSON response
+//       }
+//     }
+//   );
+// });
+
 app.post("/login", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -97,9 +142,7 @@ app.post("/login", (req, res) => {
   }
 });
 
-app.get("");
-
-// Start the server
+// server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
