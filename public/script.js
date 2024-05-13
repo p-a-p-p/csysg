@@ -167,3 +167,65 @@ function loadAttendanceList(e) {
 //       console.error("Error:", error);
 //     });
 // });
+
+function importExcel() {
+  const filePath = document.getElementById("filePath").value;
+
+  fetch("/importExcel", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ filePath: filePath }),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      console.log("Import process started.");
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+function handleFile() {
+  const fileInput = document.getElementById("excel-file");
+  const file = fileInput.files[0];
+
+  if (!file) {
+    console.error("No file selected.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const data = new Uint8Array(event.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+    sendDataToServer(jsonData);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function sendDataToServer(data) {
+  fetch("/importExcel", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to import data.");
+      }
+      console.log("Data imported successfully.");
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}

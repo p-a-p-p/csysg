@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mysql = require("mysql2");
 const path = require("path");
+const XLSX = require("xlsx");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -109,6 +110,12 @@ app.get("/loadAttendance/:eventID", (req, res) => {
   );
 });
 
+app.post("/importExcel", (req, res) => {
+  const filePath = req.body.filePath;
+  importExcelToMySQL(filePath);
+  res.send("Import process started.");
+});
+
 // app.get("/loadAttendance/:eventID", (req, res) => {
 //   const eventID = req.params.eventID;
 //   console.log(eventID); // Log the extracted eventID for debugging
@@ -145,4 +152,42 @@ app.post("/login", (req, res) => {
 // server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+app.post("/importExcel", (req, res) => {
+  const filePath = req.body.filePath;
+
+  // Read the Excel file
+  const workbook = xlsx.readFile(filePath);
+  const sheetName = workbook.SheetNames[0]; // Assuming data is in the first sheet
+  const worksheet = workbook.Sheets[sheetName];
+  const excelData = xlsx.utils.sheet_to_json(worksheet);
+
+  // Process each row of Excel data and insert into MySQL database
+  excelData.forEach((row) => {
+    const idNumber = row.idNumber;
+    const eventID = row.eventID;
+
+    // Insert the data into the MySQL table
+    pool.query(
+      "INSERT INTO attendance_table (idNumber, eventID) VALUES (?, ?)",
+      [idNumber, eventID],
+      (err, results) => {
+        if (err) {
+          console.error("Error inserting row:", err);
+        } else {
+          console.log("Row inserted successfully:", results);
+        }
+      }
+    );
+  });
+});
+
+app.post("/importAttendance", (req, res) => {
+  const attendanceData = req.body;
+
+  // Validate and insert data into MySQL attendance table
+  // Code for inserting data into MySQL goes here
+
+  res.status(200).send("Data imported successfully.");
 });

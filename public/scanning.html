@@ -6,6 +6,9 @@
     <title>SCANNING</title>
     <link rel="stylesheet" href="sidebar.css" />
   </head>
+  <!-- Include SheetJS (xlsx) library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
      <!-- Needed Functions:
   Display attendance
   Add Student
@@ -25,7 +28,8 @@
       <div class="input-box">
         <input type="text" id="eventName" placeholder="STUDENT ID" />
         <button onclick="addStudentEvent()" type="submit">SCAN ME BABY</button>
-        <button onclick="" type="submit"></button>
+        <input type="file" id="excel-file" accept=".xlsx,.xls">
+        <button onclick="handleFile()" type="submit">IMPORT DATA</button>
       </div>
 
       <div class="attendance-box">
