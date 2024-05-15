@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SCANNING</title>
     <link rel="stylesheet" href="sidebar.css" />
+    <script lang="javascript" src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   </head>
   <!-- Include SheetJS (xlsx) library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
@@ -23,19 +24,25 @@
       <a href="./attendance.html"> Attendance</a>
     </div>
 
-
     <div class="wrapper">
       <div class="input-box">
-        <input type="text" id="eventName" placeholder="STUDENT ID" />
-        <button onclick="addStudentEvent()" type="submit">SCAN ME BABY</button>
-        <input type="file" id="excel-file" accept=".xlsx,.xls">
-        <button onclick="handleFile()" type="submit">IMPORT DATA</button>
+
+          <input type="text" id="eventName" required placeholder="STUDENT ID" />
+          <button onclick="addStudentEvent()" required type="submit">SCAN ME BABY</button>
+
+            <input type="file" id="excel-file" accept=".xlsx,.xls">
+            <button onclick="handleFile()" type="submit">IMPORT DATA</button>
+
+
+          <button onclick="exportData()">EXPORT</button>
       </div>
 
       <div class="attendance-box">
         </div>
       </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.17.0/dist/xlsx.full.min.js"></script>
+
     <script src="script.js"></script>
   </body>
 </html>

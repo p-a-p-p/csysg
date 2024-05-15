@@ -108,3 +108,8 @@ a {
 .event-name:hover {
   color: blue;
 }
+
+.input-box {
+  display: flex;
+gap: 12px;
+}

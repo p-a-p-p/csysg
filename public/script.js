@@ -1,6 +1,6 @@
+// Function to add an event
 function addEvent(event) {
   // Get the values of eventName and eventDate
-
   const eventName = document.getElementById("eventName").value;
   const eventDate = document.getElementById("eventDate").value;
 
@@ -10,17 +10,19 @@ function addEvent(event) {
     eventDate: eventDate,
   };
 
+  // Send POST request to save the event
   fetch("/saveEvent", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
-  });
-
-  location.reload();
+  })
+    .then(() => location.reload())
+    .catch((error) => console.error("Error:", error));
 }
 
+// Function to load events
 function loadEvents(e) {
   fetch("/availableEvents")
     .then((response) => {
@@ -30,40 +32,37 @@ function loadEvents(e) {
       return response.json();
     })
     .then((data) => {
-      for (let i = 0; i < data.length; i++) {
-        const event = data[i];
-
-        const eventWrapper = document.querySelector(".wrapper");
-
+      const eventWrapper = document.querySelector(".wrapper");
+      data.forEach((event) => {
         // Create elements for each event
-        const newEventbox = document.createElement("DIV");
+        const newEventbox = document.createElement("div");
         newEventbox.className = "information-box";
 
-        const newEvent = document.createElement("DIV");
+        const newEvent = document.createElement("div");
         newEvent.className = "event";
 
-        const newEventName = document.createElement("A");
+        const newEventName = document.createElement("a");
         newEventName.href = `./scanning.html?id=${event.eventID}`;
         newEventName.className = "event-name";
         newEventName.innerText = event.eventName;
 
-        const newEventDate = document.createElement("P");
+        const newEventDate = document.createElement("p");
         newEventDate.className = "event-date";
-        var date = new Date(event.eventDate);
+        const date = new Date(event.eventDate);
         newEventDate.innerText = date.toISOString().substring(0, 10);
 
-        const newButtonDel = document.createElement("BUTTON");
+        const newButtonDel = document.createElement("button");
         newButtonDel.className = "buttonDel";
         newButtonDel.textContent = "X";
         newButtonDel.dataset.rowId = event.eventID;
 
-        eventWrapper.appendChild(newEventbox);
         newEventbox.appendChild(newEvent);
         newEvent.appendChild(newEventName);
         newEvent.appendChild(newEventDate);
         newEventbox.appendChild(newButtonDel);
+        eventWrapper.appendChild(newEventbox);
 
-        //script for button
+        // Script for delete button
         newButtonDel.addEventListener("click", function () {
           const eventId = this.dataset.rowId;
           fetch(`/deleteEvent/${eventId}`, {
@@ -73,46 +72,48 @@ function loadEvents(e) {
               if (!response.ok) {
                 throw new Error("Failed to delete event");
               }
-
               location.reload();
             })
             .catch((error) => {
               console.error("Error:", error);
             });
         });
-      }
+      });
     })
     .catch((error) => {
       console.error("Error:", error);
     });
 }
 
-// function addStudentEvent(e) {
-//   const studentNo = document.getElementById("eventName").value;
-//   const queryString = window.location.search;
-//   const urlParams = new URLSearchParams(queryString);
-
-//   console.log(studentNo, urlParams.get("id"));
-
-//   fetch("/attendanceList", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(data),
-//   });
-// }
-
-function loadAttendanceList(e) {
-  // const studentNo = document.getElementById("eventName").value;
+// Function to add a student to an event
+function addStudentEvent(e) {
+  const studentNo = document.getElementById("eventName").value;
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
 
-  // console.log(studentNo, urlParams.get("id"));
-  const eventID = urlParams.get("id");
-  console.log(eventID);
+  const data = {
+    idNumber: studentNo,
+    eventID: urlParams.get("id"),
+  };
 
-  fetch(`/loadAttendance/${eventID}`, {})
+  fetch("/addAttendance", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then(() => location.reload())
+    .catch((error) => console.error("Error:", error));
+}
+
+// Function to load the attendance list for an event
+function loadAttendanceList(e) {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const eventID = urlParams.get("id");
+
+  fetch(`/loadAttendance/${eventID}`)
     .then((response) => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -120,75 +121,20 @@ function loadAttendanceList(e) {
       return response.json();
     })
     .then((data) => {
-      for (let i = 0; i < data.length; i++) {
-        const attendance = data[i];
-        const attendanceWrapper = document.querySelector(".attendance-box");
-
-        // Create
-        const idNumber = document.createElement("LI");
+      const attendanceWrapper = document.querySelector(".attendance-box");
+      data.forEach((attendance) => {
+        const idNumber = document.createElement("li");
         idNumber.className = "id-number";
         idNumber.innerText = attendance.idNumber;
-
         attendanceWrapper.appendChild(idNumber);
-        console.log(attendance);
-      }
+      });
     })
     .catch((error) => {
       console.error("Error:", error);
     });
 }
 
-// const queryString = window.location.search;
-// const urlParams = new URLSearchParams(queryString);
-// const eventID = urlParams.get("id");
-// addEventListener("DOMContentLoaded", (event) => {
-//   fetch(`/loadAttendance/${eventID}`, {})
-//     .then((response) => {
-//       if (!response.ok) {
-//         throw new Error("Network response was not ok");
-//       }
-//       return response.json();
-//     })
-//     .then((data) => {
-//       for (let i = 0; i < data.length; i++) {
-//         const attendance = data[i];
-//         const attendanceWrapper = document.querySelector(".attendance-box");
-
-//         // Create
-//         const idNumber = document.createElement("LI");
-//         idNumber.className = "id-number";
-//         idNumber.innerText = attendance.idNumber;
-
-//         attendanceWrapper.appendChild(idNumber);
-//         console.log(attendance);
-//       }
-//     })
-//     .catch((error) => {
-//       console.error("Error:", error);
-//     });
-// });
-
-function importExcel() {
-  const filePath = document.getElementById("filePath").value;
-
-  fetch("/importExcel", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ filePath: filePath }),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      console.log("Import process started.");
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-}
-
+// Function to handle file upload and convert to JSON
 function handleFile() {
   const fileInput = document.getElementById("excel-file");
   const file = fileInput.files[0];
@@ -211,8 +157,9 @@ function handleFile() {
   reader.readAsArrayBuffer(file);
 }
 
+// Function to send the JSON data to the server
 function sendDataToServer(data) {
-  fetch("/importExcel", {
+  fetch("/importAttendance", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -224,6 +171,31 @@ function sendDataToServer(data) {
         throw new Error("Failed to import data.");
       }
       console.log("Data imported successfully.");
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+// Function to export data
+function exportData(e) {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const eventID = urlParams.get("id");
+
+  fetch(`/exportData/${eventID}`, {
+    method: "GET",
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.arrayBuffer();
+    })
+    .then((buffer) => {
+      const bytes = new Uint8Array(buffer);
+      const workbook = XLSX.read(bytes, { type: "array" });
+      XLSX.writeFile(workbook, "attendance.xlsx");
     })
     .catch((error) => {
       console.error("Error:", error);
