@@ -39,17 +39,20 @@ app.post("/saveEvent", (req, res) => {
   );
 });
 
-app.delete("/deleteEvent/:eventId", (req, res) => {
-  const eventId = req.params.eventId;
+app.delete("/deleteEvent/:id", (req, res) => {
+  const id = req.params.id;
   pool.query(
     "DELETE FROM event_table WHERE eventID = ?",
-    [eventId],
+    [id],
     (err, results) => {
       if (err) {
         console.error("Error", err);
         return res.status(500).json({ error: "Internal server error" });
       }
-      res.status(200).json({ message: "Event deleted successfully" });
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ error: "Row not found" });
+      }
+      res.status(200).json({ message: "Row deleted successfully" });
     }
   );
 });
@@ -66,19 +69,6 @@ app.get("/availableEvents", (req, res) => {
     }
   );
 });
-
-// app.get("/availableEvents", (req, res) => {
-//   pool.query(
-//     "SELECT eventID, eventName, eventDate FROM event_table",
-//     (err, results) => {
-//       if (err) {
-//         console.error("Error", err);
-//       }
-//       res.status(200).json(results);
-//       console.log(results);
-//     }
-//   );
-// });
 
 app.post("/addStudent", (req, res) => {
   const { eventName, eventDate } = req.body;
@@ -110,25 +100,6 @@ app.get("/loadAttendance/:eventID", (req, res) => {
   );
 });
 
-// app.get("/loadAttendance/:eventID", (req, res) => {
-//   const eventID = req.params.eventID;
-//   console.log(eventID); // Log the extracted eventID for debugging
-
-//   pool.query(
-//     "SELECT * FROM attendance_table INNER JOIN event_table ON attendance_table.eventID = event_table.eventID WHERE eventID = ?",
-//     [eventID],
-//     (err, results) => {
-//       if (err) {
-//         console.error("Error executing SQL query:", err);
-//         res.status(500).json({ error: "Internal server error" }); // Send an error response
-//       } else {
-//         console.log("Query results:", results); // Log the query results for debugging
-//         res.status(200).json(results); // Send the query results as JSON response
-//       }
-//     }
-//   );
-// });
-
 app.post("/login", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -136,10 +107,8 @@ app.post("/login", (req, res) => {
   // Authenticate user (replace with your authentication logic)
   if (username === "admin" && password === "admin") {
     res.redirect("events.html");
-    console.log(req.body);
   } else {
     res.status(401).send("Invalid username or password");
-    console.log(req.body);
   }
 });
 
@@ -158,18 +127,22 @@ app.post("/addAttendance", (req, res) => {
 });
 
 app.post("/importAttendance", (req, res) => {
-  const { idNumber, eventID } = req.body;
+  const attendanceData = req.body;
 
-  pool.query(
-    "INSERT INTO attendance_table (idNumber, eventID) VALUES (?, ?)",
-    [idNumber, parseInt(eventID)],
-    (err, results) => {
-      if (err) {
-        console.error("Error", err);
-      }
-      res.status(200).json(results);
+  const values = attendanceData.map(({ idNumber, eventID }) => [
+    idNumber,
+    parseInt(eventID),
+  ]);
+
+  const query = "INSERT INTO attendance_table (idNumber, eventID) VALUES ?";
+
+  pool.query(query, [values], (err, results) => {
+    if (err) {
+      console.error("Error", err);
+      return res.status(500).send("Error inserting data");
     }
-  );
+    res.status(200).json(results);
+  });
 });
 
 app.get("/exportData/:eventID", (req, res) => {
@@ -194,6 +167,44 @@ app.get("/exportData/:eventID", (req, res) => {
 
       res.attachment("shetboy.xlsx");
       res.status(200).end(buf);
+    }
+  );
+});
+
+app.get("/searchStudent/:idNumber", (req, res) => {
+  const idNumber = req.params.idNumber;
+
+  pool.query(
+    `SELECT studentName FROM student_table WHERE idNumber = ?`,
+    [idNumber],
+    (err, studentResults) => {
+      if (err) {
+        console.error("Error fetching student name:", err);
+        return res.status(500).send("Internal Server Error");
+      }
+
+      if (studentResults.length === 0) {
+        return res.status(404).send("Student not found");
+      }
+
+      const studentName = studentResults[0].studentName;
+
+      pool.query(
+        `SELECT event_table.eventName, event_table.eventDate 
+         FROM attendance_table 
+         INNER JOIN event_table 
+         ON attendance_table.eventID = event_table.eventID 
+         WHERE attendance_table.idNumber = ?`,
+        [idNumber],
+        (err, eventResults) => {
+          if (err) {
+            console.error("Error fetching events:", err);
+            return res.status(500).send("Internal Server Error");
+          }
+
+          res.status(200).json({ studentName, events: eventResults });
+        }
+      );
     }
   );
 });

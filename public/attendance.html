@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Attendance</title>
     <link rel="stylesheet" href="sidebar.css" />
-    <script lang="javascript" src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="script.js" defer></script>
   </head>
   <body>
     <div class="sidebar">
@@ -14,7 +15,14 @@
     </div>
 
     <div class="wrapper">
-      <div class="ONGOING">STILL ONGOING</div>
+      <input type="text" id="idNumber" placeholder="Input ID Number" />
+      <button type="submit" onclick="searchStudent()">Search</button>
+
+      <!-- Element to display student name -->
+      <div class="attendance-box">
+        <h1 id="studentNameDisplay"></h1>
+        <li id="eventsList"></li>
+      </div>
     </div>
   </body>
 </html>

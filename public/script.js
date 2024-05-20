@@ -1,16 +1,13 @@
 // Function to add an event
 function addEvent(event) {
-  // Get the values of eventName and eventDate
   const eventName = document.getElementById("eventName").value;
   const eventDate = document.getElementById("eventDate").value;
 
-  // Create a data object to send to the server
   const data = {
     eventName: eventName,
     eventDate: eventDate,
   };
 
-  // Send POST request to save the event
   fetch("/saveEvent", {
     method: "POST",
     headers: {
@@ -22,7 +19,6 @@ function addEvent(event) {
     .catch((error) => console.error("Error:", error));
 }
 
-// Function to load events
 function loadEvents(e) {
   fetch("/availableEvents")
     .then((response) => {
@@ -34,7 +30,6 @@ function loadEvents(e) {
     .then((data) => {
       const eventWrapper = document.querySelector(".wrapper");
       data.forEach((event) => {
-        // Create elements for each event
         const newEventbox = document.createElement("div");
         newEventbox.className = "information-box";
 
@@ -62,7 +57,6 @@ function loadEvents(e) {
         newEventbox.appendChild(newButtonDel);
         eventWrapper.appendChild(newEventbox);
 
-        // Script for delete button
         newButtonDel.addEventListener("click", function () {
           const eventId = this.dataset.rowId;
           fetch(`/deleteEvent/${eventId}`, {
@@ -75,6 +69,7 @@ function loadEvents(e) {
               location.reload();
             })
             .catch((error) => {
+              console.log(eventId);
               console.error("Error:", error);
             });
         });
@@ -85,7 +80,6 @@ function loadEvents(e) {
     });
 }
 
-// Function to add a student to an event
 function addStudentEvent(e) {
   const studentNo = document.getElementById("eventName").value;
   const queryString = window.location.search;
@@ -107,7 +101,6 @@ function addStudentEvent(e) {
     .catch((error) => console.error("Error:", error));
 }
 
-// Function to load the attendance list for an event
 function loadAttendanceList(e) {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -134,50 +127,6 @@ function loadAttendanceList(e) {
     });
 }
 
-// Function to handle file upload and convert to JSON
-function handleFile() {
-  const fileInput = document.getElementById("excel-file");
-  const file = fileInput.files[0];
-
-  if (!file) {
-    console.error("No file selected.");
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    const data = new Uint8Array(event.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(sheet);
-
-    sendDataToServer(jsonData);
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-// Function to send the JSON data to the server
-function sendDataToServer(data) {
-  fetch("/importAttendance", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Failed to import data.");
-      }
-      console.log("Data imported successfully.");
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-}
-
-// Function to export data
 function exportData(e) {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -200,4 +149,104 @@ function exportData(e) {
     .catch((error) => {
       console.error("Error:", error);
     });
+}
+
+document.getElementById("read-excel").addEventListener("click", function () {
+  const fileInput = document.getElementById("excel-file");
+  const file = fileInput.files[0];
+
+  if (!file) {
+    console.error("No file selected.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const data = new Uint8Array(event.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    const firstColumn = [];
+    const range = XLSX.utils.decode_range(sheet["!ref"]);
+
+    for (let rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: rowNum, c: 0 });
+      const cell = sheet[cellAddress];
+      const cellValue = cell ? cell.v : undefined;
+      firstColumn.push(cellValue);
+    }
+
+    console.log(firstColumn);
+    sendDataToServer(firstColumn);
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+function sendDataToServer(data) {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const eventID = urlParams.get("id");
+
+  const payload = data.map((idNumber) => ({ idNumber, eventID }));
+
+  fetch("/importAttendance", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Failed to import data.");
+      }
+      location.reload;
+      console.log("Data imported successfully.");
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+}
+
+function searchStudent() {
+  const idNumber = document.getElementById("idNumber").value.trim();
+
+  if (!idNumber) {
+    alert("Please enter a student ID");
+    return;
+  }
+
+  fetch(`/searchStudent/${idNumber}`)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      displayStudentData(data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("Failed to fetch student data");
+    });
+}
+
+function displayStudentData(data) {
+  const studentNameDisplay = document.getElementById("studentNameDisplay");
+  const eventsList = document.getElementById("eventsList");
+
+  studentNameDisplay.textContent = `Student Name: ${data.studentName}`;
+
+  eventsList.innerHTML = "";
+  data.events.forEach((event) => {
+    const listItem = document.createElement("li");
+    listItem.textContent = `Event: ${event.eventName}, Date: ${new Date(
+      event.eventDate
+    )
+      .toISOString()
+      .substring(0, 10)}`;
+    eventsList.appendChild(listItem);
+  });
 }
