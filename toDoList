@@ -1,7 +1,13 @@
-Scanning 
-    Insert SQL 
+UI:
+Change UI Design (Rework)
 
-Attendance html
+Features:
 
-    Query name + idnumber of student 
+Roles: Admin and Users (CSG and LGU's)
+
+Reports:
+    Login-logout report (Table type)
     
+
+Efficiency:
+Proper eventID when deleting

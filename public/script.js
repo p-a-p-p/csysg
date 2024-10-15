@@ -81,7 +81,14 @@ function loadEvents(e) {
 }
 
 function addStudentEvent(e) {
-  const studentNo = document.getElementById("eventName").value;
+  
+  const studentNo = document.getElementById("eventName").value.trim();
+
+  if (!studentNo) {
+    alert("Please fill out the STUDENT ID field.");
+    return; 
+  }
+
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
 
@@ -90,6 +97,7 @@ function addStudentEvent(e) {
     eventID: urlParams.get("id"),
   };
 
+
   fetch("/addAttendance", {
     method: "POST",
     headers: {
@@ -97,8 +105,12 @@ function addStudentEvent(e) {
     },
     body: JSON.stringify(data),
   })
-    .then(() => location.reload())
-    .catch((error) => console.error("Error:", error));
+    .then(() => {
+      location.reload();
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
 }
 
 function loadAttendanceList(e) {
@@ -151,6 +163,8 @@ function exportData(e) {
     });
 }
 
+// NEW VERSION CSV BARCODE SCANNED
+
 document.getElementById("read-excel").addEventListener("click", function () {
   const fileInput = document.getElementById("excel-file");
   const file = fileInput.files[0];
@@ -160,35 +174,67 @@ document.getElementById("read-excel").addEventListener("click", function () {
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    const data = new Uint8Array(event.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
+  const fileExtension = file.name.split(".").pop().toLowerCase();
 
-    const firstColumn = [];
-    const range = XLSX.utils.decode_range(sheet["!ref"]);
+  if (fileExtension === "xlsx") {
+    // Handle Excel file
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
 
-    for (let rowNum = range.s.r; rowNum <= range.e.r; rowNum++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: rowNum, c: 0 });
-      const cell = sheet[cellAddress];
-      const cellValue = cell ? cell.v : undefined;
-      firstColumn.push(cellValue);
-    }
+      const firstColumn = [];
+      const range = XLSX.utils.decode_range(sheet["!ref"]);
 
-    console.log(firstColumn);
-    sendDataToServer(firstColumn);
-  };
-  reader.readAsArrayBuffer(file);
+      for (let rowNum = 3; rowNum <= range.e.r; rowNum++) { 
+        const cellAddress = XLSX.utils.encode_cell({ r: rowNum, c: 1 }); 
+        const cell = sheet[cellAddress];
+        const cellValue = cell ? cell.v : undefined;
+        if (cellValue !== undefined) {
+          firstColumn.push(cellValue);
+        }
+      }
+
+      console.log(firstColumn);
+      sendDataToServer(firstColumn);
+    };
+    reader.readAsArrayBuffer(file);
+  } else if (fileExtension === "csv") {
+    // Handle CSV file
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const csvData = event.target.result;
+      const rows = csvData.split("\n");
+
+      const firstColumn = [];
+      for (let i = 3; i < rows.length; i++) { 
+        const columns = rows[i].split(",");
+        const cellValue = columns[1]; 
+        if (cellValue) {
+          firstColumn.push(cellValue.trim()); 
+        }
+      }
+
+      console.log(firstColumn);
+      sendDataToServer(firstColumn);
+    };
+    reader.readAsText(file); 
+  } else {
+    console.error("Unsupported file format. Please upload an Excel or CSV file.");
+  }
 });
-
 function sendDataToServer(data) {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const eventID = urlParams.get("id");
 
-  const payload = data.map((idNumber) => ({ idNumber, eventID }));
+  // Ensure idNumber values are clean and not surrounded by extra quotes
+  const payload = data.map((idNumber) => ({
+    idNumber: idNumber.replace(/['"]+/g, ''), // Remove any unnecessary quotes
+    eventID,
+  }));
 
   fetch("/importAttendance", {
     method: "POST",
@@ -201,13 +247,15 @@ function sendDataToServer(data) {
       if (!response.ok) {
         throw new Error("Failed to import data.");
       }
-      location.reload;
+      location.reload(); // Ensure page reloads after successful import
       console.log("Data imported successfully.");
     })
     .catch((error) => {
       console.error("Error:", error);
     });
 }
+
+
 
 function searchStudent() {
   const idNumber = document.getElementById("idNumber").value.trim();

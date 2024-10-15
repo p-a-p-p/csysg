@@ -25,3 +25,17 @@ CREATE TABLE `mydb`.`attendance_table` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
+ALTER TABLE `mydb`.`attendance_table` 
+DROP FOREIGN KEY ``;
+ALTER TABLE `mydb`.`attendance_table` 
+DROP INDEX `idNumber_idx` ;
+;
+
+ALTER TABLE `mydb`.`attendance_table` 
+DROP FOREIGN KEY `eventID`;
+ALTER TABLE `mydb`.`attendance_table` 
+ADD CONSTRAINT `eventID`
+  FOREIGN KEY (`eventID`)
+  REFERENCES `mydb`.`event_table` (`eventID`)
+  ON DELETE CASCADE;
+

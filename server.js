@@ -104,7 +104,6 @@ app.post("/login", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  // Authenticate user (replace with your authentication logic)
   if (username === "admin" && password === "admin") {
     res.redirect("events.html");
   } else {
