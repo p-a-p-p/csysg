@@ -5,36 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <link rel="stylesheet" href="styles.css" />
-    <script lang="javascript" src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   </head>
 
   <body>
-    <div class="wrapper">
-      <form action="/login" method="post">
-        <h1>Login</h1>
+    <main class="wrapper">
+      <section>
+        <form action="/login" method="post" aria-label="Login Form">
+          <h1>Login</h1>
 
-        <div class="input-box">
-          <input
-            type="text"
-            placeholder="Username"
-            id="username"
-            name="username"
-            required
-          />
-        </div>
+          <div class="input-box">
+            <label for="username"></label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Username"
+              required
+              aria-required="true"
+            />
+          </div>
 
-        <div class="input-box">
-          <input
-            type="password"
-            placeholder="Password"
-            id="password"
-            name="password"
-            required
-          />
-        </div>
+          <div class="input-box">
+            <label for="password"></label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Password"
+              required
+              aria-required="true"
+            />
+          </div>
 
-        <button type="submit" class="btn">Login</button>
-      </form>
-    </div>
+          <button type="submit" class="btn">Login</button>
+        </form>
+      </section>
+    </main>
   </body>
 </html>

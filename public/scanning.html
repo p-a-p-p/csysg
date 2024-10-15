@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SCANNING</title>
     <link rel="stylesheet" href="sidebar.css" />
-    <script lang="javascript" src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <script
+      lang="javascript"
+      src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"
+    ></script>
   </head>
   <!-- Include SheetJS (xlsx) library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
 
-     <!-- Needed Functions:
-  Display attendance
-  Add Student
-  Delete Student
-  Insert Excel to SQL
-
-  Information will appear depending on event ID
-   -->
   <body onload="loadAttendanceList()">
     <div class="sidebar">
       <a href="./events.html"> Events</a>
@@ -26,19 +21,17 @@
 
     <div class="wrapper">
       <div class="input-box">
-
         <input type="text" id="eventName" required placeholder="STUDENT ID" />
         <button onclick="addStudentEvent()" type="submit">INPUT</button>
-        
-            <input type="file" id="excel-file" accept=".xlsx,.xls,.csv">
-            <button id="read-excel">IMPORT</button>
-          <button onclick="exportData()">EXPORT</button>
+
+        <input type="file" id="excel-file" accept=".xlsx,.xls,.csv" />
+        <button id="read-excel">IMPORT</button>
+        <button onclick="exportData()">EXPORT</button>
       </div>
 
-      <div class="attendance-box">
-        </div>
-      </div>
+      <div class="attendance-box"></div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.17.0/dist/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
     <script src="script.js"></script>

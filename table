@@ -39,3 +39,10 @@ ADD CONSTRAINT `eventID`
   REFERENCES `mydb`.`event_table` (`eventID`)
   ON DELETE CASCADE;
 
+
+CREATE TABLE users_table(
+    userID INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'staff', 'user') NOT NULL
+);

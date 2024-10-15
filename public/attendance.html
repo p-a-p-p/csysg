@@ -4,25 +4,43 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Attendance</title>
-    <link rel="stylesheet" href="sidebar.css" />
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="./sidebar.css" />
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js" defer></script>
     <script src="script.js" defer></script>
   </head>
   <body>
-    <div class="sidebar">
-      <a href="./events.html"> Events</a>
-      <a href="./attendance.html"> Attendance</a>
-    </div>
+    <nav class="sidebar" role="navigation">
+      <a href="./events.html">Events</a>
+      <a href="./attendance.html" aria-current="page">Attendance</a>
+    </nav>
 
-    <div class="wrapper">
-      <input type="text" id="idNumber" placeholder="Input ID Number" />
-      <button type="submit" onclick="searchStudent()">Search</button>
+    <main class="wrapper">
+      <section>
+        <form
+          id="attendanceForm"
+          onsubmit="handleFormSubmit(event)"
+          aria-label="Search Student Form"
+        >
+          <label for="idNumber">ID Number:</label>
+          <input
+            type="text"
+            id="idNumber"
+            placeholder="Input ID Number"
+            required
+            aria-required="true"
+            aria-describedby="idHelp"
+          />
+          <small id="idHelp"></small>
+          <button type="submit">Search</button>
+        </form>
 
-      <!-- Element to display student name -->
-      <div class="attendance-box">
-        <h1 id="studentNameDisplay"></h1>
-        <li id="eventsList"></li>
-      </div>
-    </div>
+        <!-- Display Student Info -->
+        <div class="attendance-box" role="region" aria-live="polite">
+          <h1 id="studentNameDisplay">Student Name</h1>
+          <ul id="eventsList"></ul>
+          <p id="loadingMessage" hidden>Loading student data...</p>
+        </div>
+      </section>
+    </main>
   </body>
 </html>

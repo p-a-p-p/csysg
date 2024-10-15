@@ -80,13 +80,20 @@ function loadEvents(e) {
     });
 }
 
-function addStudentEvent(e) {
-  
+let existingStudentIDs = [];
+
+function addStudentEvent() {
   const studentNo = document.getElementById("eventName").value.trim();
 
   if (!studentNo) {
     alert("Please fill out the STUDENT ID field.");
-    return; 
+    return;
+  }
+
+  // Check if the student ID already exists
+  if (existingStudentIDs.includes(studentNo)) {
+    alert("This student ID already exists in the attendance list.");
+    return;
   }
 
   const queryString = window.location.search;
@@ -97,7 +104,6 @@ function addStudentEvent(e) {
     eventID: urlParams.get("id"),
   };
 
-
   fetch("/addAttendance", {
     method: "POST",
     headers: {
@@ -106,6 +112,8 @@ function addStudentEvent(e) {
     body: JSON.stringify(data),
   })
     .then(() => {
+      // Add the new student ID to the list and reload the page
+      existingStudentIDs.push(studentNo);
       location.reload();
     })
     .catch((error) => {
@@ -113,7 +121,7 @@ function addStudentEvent(e) {
     });
 }
 
-function loadAttendanceList(e) {
+function loadAttendanceList() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   const eventID = urlParams.get("id");
@@ -132,6 +140,9 @@ function loadAttendanceList(e) {
         idNumber.className = "id-number";
         idNumber.innerText = attendance.idNumber;
         attendanceWrapper.appendChild(idNumber);
+
+        // Add each existing student ID to the array
+        existingStudentIDs.push(attendance.idNumber);
       });
     })
     .catch((error) => {
@@ -164,7 +175,6 @@ function exportData(e) {
 }
 
 // NEW VERSION CSV BARCODE SCANNED
-
 document.getElementById("read-excel").addEventListener("click", function () {
   const fileInput = document.getElementById("excel-file");
   const file = fileInput.files[0];
@@ -188,8 +198,8 @@ document.getElementById("read-excel").addEventListener("click", function () {
       const firstColumn = [];
       const range = XLSX.utils.decode_range(sheet["!ref"]);
 
-      for (let rowNum = 3; rowNum <= range.e.r; rowNum++) { 
-        const cellAddress = XLSX.utils.encode_cell({ r: rowNum, c: 1 }); 
+      for (let rowNum = 3; rowNum <= range.e.r; rowNum++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: rowNum, c: 1 });
         const cell = sheet[cellAddress];
         const cellValue = cell ? cell.v : undefined;
         if (cellValue !== undefined) {
@@ -209,20 +219,22 @@ document.getElementById("read-excel").addEventListener("click", function () {
       const rows = csvData.split("\n");
 
       const firstColumn = [];
-      for (let i = 3; i < rows.length; i++) { 
+      for (let i = 3; i < rows.length; i++) {
         const columns = rows[i].split(",");
-        const cellValue = columns[1]; 
+        const cellValue = columns[1];
         if (cellValue) {
-          firstColumn.push(cellValue.trim()); 
+          firstColumn.push(cellValue.trim());
         }
       }
 
       console.log(firstColumn);
       sendDataToServer(firstColumn);
     };
-    reader.readAsText(file); 
+    reader.readAsText(file);
   } else {
-    console.error("Unsupported file format. Please upload an Excel or CSV file.");
+    console.error(
+      "Unsupported file format. Please upload an Excel or CSV file."
+    );
   }
 });
 function sendDataToServer(data) {
@@ -232,7 +244,7 @@ function sendDataToServer(data) {
 
   // Ensure idNumber values are clean and not surrounded by extra quotes
   const payload = data.map((idNumber) => ({
-    idNumber: idNumber.replace(/['"]+/g, ''), // Remove any unnecessary quotes
+    idNumber: idNumber.replace(/['"]+/g, ""), // Remove any unnecessary quotes
     eventID,
   }));
 
@@ -255,7 +267,10 @@ function sendDataToServer(data) {
     });
 }
 
-
+function handleFormSubmit(event) {
+  event.preventDefault(); // Prevent form submission from reloading the page
+  searchStudent();
+}
 
 function searchStudent() {
   const idNumber = document.getElementById("idNumber").value.trim();
@@ -265,6 +280,11 @@ function searchStudent() {
     return;
   }
 
+  // Show loading message while data is being fetched
+  document.getElementById("loadingMessage").hidden = false;
+  document.getElementById("studentNameDisplay").innerText = "";
+  document.getElementById("eventsList").innerHTML = "";
+
   fetch(`/searchStudent/${idNumber}`)
     .then((response) => {
       if (!response.ok) {
@@ -273,9 +293,11 @@ function searchStudent() {
       return response.json();
     })
     .then((data) => {
+      document.getElementById("loadingMessage").hidden = true;
       displayStudentData(data);
     })
     .catch((error) => {
+      document.getElementById("loadingMessage").hidden = true;
       console.error("Error:", error);
       alert("Failed to fetch student data");
     });
@@ -285,16 +307,20 @@ function displayStudentData(data) {
   const studentNameDisplay = document.getElementById("studentNameDisplay");
   const eventsList = document.getElementById("eventsList");
 
+  // Display student name
   studentNameDisplay.textContent = `Student Name: ${data.studentName}`;
 
+  // Clear the existing list before appending new data
   eventsList.innerHTML = "";
+
+  // Populate events
   data.events.forEach((event) => {
     const listItem = document.createElement("li");
     listItem.textContent = `Event: ${event.eventName}, Date: ${new Date(
       event.eventDate
     )
       .toISOString()
-      .substring(0, 10)}`;
+      .substring(0, 10)}`; // Display date in YYYY-MM-DD format
     eventsList.appendChild(listItem);
   });
 }
